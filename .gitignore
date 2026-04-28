@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+.AppleDouble
+
+# Claude (also covered by global gitignore)
+CLAUDE.md
+.claude/
+
+# Local environment overrides
+.env
