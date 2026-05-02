@@ -55,6 +55,28 @@ Edit the top of `backup_ios.sh`. All variables can also be set via environment v
 | Dropbox | `~/Dropbox/ios_backups` |
 | Local / NAS | `/Volumes/MyNAS/ios_backups` |
 
+## Global install (optional)
+
+Copy the script to `/usr/local/bin` so it runs from anywhere:
+
+```bash
+sudo cp backup_ios.sh /usr/local/bin/backup-ios
+sudo chmod +x /usr/local/bin/backup-ios
+```
+
+Then call it directly:
+
+```bash
+backup-ios
+backup-ios --dry-run
+```
+
+To uninstall:
+
+```bash
+sudo rm /usr/local/bin/backup-ios
+```
+
 ## Automatic scheduling (launchd)
 
 `install.sh` generates a launchd plist with the correct machine-specific paths and loads it as a user agent (default: every Sunday at 03:00).
@@ -111,4 +133,21 @@ tar -xzf ios_backup_YYYY-MM-DD.tar.gz
 
 ```bash
 tail -f ~/Library/Logs/backup_ios.log
+```
+
+The log is automatically trimmed to the last 512 KB on each run.
+
+## Verify download
+
+```
+c933a8eb97045dfe00be62c8fd8b38386b5f6a7299ba33a154f93f6f8430d661  backup_ios.sh
+3c8d38c9891748b61d3a0cbc97d61efc3854f761cb82e8fa4b163df5a5904cf4  install.sh
+```
+
+```bash
+shasum -a 256 -c <(cat <<'EOF'
+c933a8eb97045dfe00be62c8fd8b38386b5f6a7299ba33a154f93f6f8430d661  backup_ios.sh
+3c8d38c9891748b61d3a0cbc97d61efc3854f761cb82e8fa4b163df5a5904cf4  install.sh
+EOF
+)
 ```

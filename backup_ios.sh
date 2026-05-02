@@ -23,6 +23,7 @@ BACKUP_BASE="$HOME/Library/Application Support/MobileSync/Backup"
 CLOUD_DIR="${CLOUD_DIR:-}"
 
 LOG_FILE="${LOG_FILE:-$HOME/Library/Logs/backup_ios.log}"
+LOCK_FILE="${TMPDIR:-/tmp}/backup_ios.lock"
 KEEP_LAST=5            # number of backups to keep in cloud storage
 MAX_BACKUP_AGE_DAYS=7  # warn if the iPhone backup is older than N days
 SPLIT_SIZE="5g"        # maximum size of each split part
@@ -50,6 +51,16 @@ notify() {
   osascript -e "display notification \"$message\" with title \"$title\" sound name \"Glass\"" 2>/dev/null || true
 }
 
+rotate_log() {
+  [ -f "$LOG_FILE" ] || return 0
+  local max=524288  # 512 KB
+  local size
+  size=$(stat -f "%z" "$LOG_FILE" 2>/dev/null || echo 0)
+  if [ "$size" -gt "$max" ]; then
+    tail -c "$max" "$LOG_FILE" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "$LOG_FILE"
+  fi
+}
+
 # ===== TRAP: cleanup on failure =====
 CLEANUP_DIR=""
 cleanup_on_error() {
@@ -61,13 +72,28 @@ cleanup_on_error() {
   notify "iOS Backup" "❌ Failed — check log at ~/Library/Logs/backup_ios.log"
 }
 trap cleanup_on_error ERR INT TERM
+trap 'rm -f "$LOCK_FILE"' EXIT
 
 # ===== START =====
+rotate_log
 if [ "$DRY_RUN" = true ]; then
   log "====== iOS BACKUP START (DRY-RUN) ======"
 else
   log "====== iOS BACKUP START ======"
 fi
+
+# ===== LOCK FILE =====
+if [ -f "$LOCK_FILE" ]; then
+  OLD_PID=$(cat "$LOCK_FILE" 2>/dev/null || echo "")
+  if [ -n "$OLD_PID" ] && kill -0 "$OLD_PID" 2>/dev/null; then
+    log "❌ Another backup is already running (PID $OLD_PID). Exiting."
+    exit 1
+  else
+    log "⚠️  Stale lock file found (PID $OLD_PID). Removing."
+    rm -f "$LOCK_FILE"
+  fi
+fi
+echo $$ > "$LOCK_FILE"
 
 # ===== VALIDATE CONFIG =====
 if [ -z "$CLOUD_DIR" ]; then
