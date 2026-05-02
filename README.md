@@ -12,7 +12,17 @@ Each backup is compressed, split into 5 GB parts, and protected with PAR2 recove
 
 ## Quick start
 
-**1. Set your destination** — edit `CLOUD_DIR` at the top of `backup_ios.sh`, or pass it as an environment variable:
+**1. Set your destination** — copy `.env.example` to `.env` and fill in `CLOUD_DIR`:
+
+```bash
+cp .env.example .env
+```
+
+```
+CLOUD_DIR="$HOME/Library/CloudStorage/ProtonDrive-you@example.com-folder/ios_backups"
+```
+
+`.env` is local to your machine and never committed. You can also pass `CLOUD_DIR` as an environment variable directly:
 
 ```bash
 export CLOUD_DIR="$HOME/Library/CloudStorage/ProtonDrive-you@example.com-folder/ios_backups"
@@ -33,7 +43,7 @@ chmod +x backup_ios.sh
 
 ## Configuration
 
-Edit the top of `backup_ios.sh`. All variables can also be set via environment variables.
+Set variables in `.env` (recommended) or export them as environment variables. All have sensible defaults except `CLOUD_DIR`.
 
 | Variable              | Default | Description |
 |-----------------------|---------|-------------|

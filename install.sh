@@ -8,6 +8,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck disable=SC1091
+[ -f "$SCRIPT_DIR/.env" ] && source "$SCRIPT_DIR/.env"
+
 SCRIPT_PATH="$SCRIPT_DIR/backup_ios.sh"
 PLIST_LABEL="local.backup-ios"
 PLIST_DEST="$HOME/Library/LaunchAgents/${PLIST_LABEL}.plist"

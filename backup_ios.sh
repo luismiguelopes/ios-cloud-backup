@@ -8,6 +8,11 @@
 
 set -euo pipefail
 
+# ===== LOCAL CONFIG =====
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck disable=SC1091
+[ -f "$SCRIPT_DIR/.env" ] && source "$SCRIPT_DIR/.env"
+
 # ===== CONFIG =====
 BACKUP_BASE="$HOME/Library/Application Support/MobileSync/Backup"
 
